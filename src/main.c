@@ -72,7 +72,7 @@ static void prvSetupUSART(void)
 	GPIO_InitTypeDef gpio_uart_pins;
 	USART_InitTypeDef uart2_init;
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2,ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
 
 	// zeroing every elements of the structure
 	memset(&gpio_uart_pins,0,sizeof(gpio_uart_pins));

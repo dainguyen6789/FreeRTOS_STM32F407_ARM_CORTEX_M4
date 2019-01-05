@@ -7,6 +7,7 @@
   * @brief   Default main function.
   ******************************************************************************
 */
+// CRTL +SPACE to access the suggestion
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -15,10 +16,14 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "FreeRTOSConfig.h"
+#include "semphr.h"
 TaskHandle_t xTaskHandle_1=NULL;
 TaskHandle_t xTaskHandle_2=NULL;
 void vTask1(void *params);
 void vTask2(void *params);
+
+SemaphoreHandle_t xSemaphore=NULL;
+
 #ifdef USE_SEMIHOSTING
 extern void initialise_monitor_handles();
 #endif
@@ -46,9 +51,16 @@ int main(void)
 	prvSetupHardware();
 	sprintf(msg,"hello Dai Nguyen\n");
 	printmsg(msg);
-	xTaskCreate(vTask1,"Task 1",configMINIMAL_STACK_SIZE,NULL,3,&xTaskHandle_1);//
-	xTaskCreate(vTask2,"Task 2",configMINIMAL_STACK_SIZE,NULL,3,&xTaskHandle_2);//
-	vTaskStartScheduler();
+
+	xSemaphore = xSemaphoreCreateBinary();
+
+	if(xSemaphore!=NULL)
+	{
+		xSemaphoreGive(xSemaphore);
+		xTaskCreate(vTask1,"Task 1",configMINIMAL_STACK_SIZE,NULL,1,&xTaskHandle_1);//
+		xTaskCreate(vTask2,"Task 2",configMINIMAL_STACK_SIZE,NULL,1,&xTaskHandle_2);//
+		vTaskStartScheduler();
+	}
 }
 
 
@@ -56,10 +68,15 @@ void vTask1(void *params)
 {
 	while(1)
 	{
-		sprintf(msg,"hello from Task 1\n");
-		printmsg(msg);
-		//vTaskDelay(pdMS_TO_TICKS(1000));
-		taskYIELD();///
+		xSemaphoreTake(xSemaphore, portMAX_DELAY );
+		{
+			sprintf(msg,"hello from Task 1\n");
+			printmsg(msg);
+			xSemaphoreGive(xSemaphore);
+		}
+
+		vTaskDelay(500/portTICK_RATE_MS);
+		//taskYIELD();///
 
 	};
 }
@@ -68,10 +85,14 @@ void vTask2(void *params)
 {
 	while(1)
 	{
-		sprintf(msg,"hello from Task 2\n");
-		printmsg(msg);
-		//vTaskDelay(pdMS_TO_TICKS(1000));
-		taskYIELD();///
+		xSemaphoreTake(xSemaphore, portMAX_DELAY );
+		{
+			sprintf(msg,"hello from Task 2\n");
+			printmsg(msg);
+			xSemaphoreGive(xSemaphore);
+		}
+		vTaskDelay(500/portTICK_RATE_MS);
+		//taskYIELD();///
 	};
 }
 static void prvSetupUSART(void)

@@ -46,8 +46,8 @@ int main(void)
 	prvSetupHardware();
 	sprintf(msg,"hello Dai Nguyen\n");
 	printmsg(msg);
-	xTaskCreate(vTask1,"Task 1",configMINIMAL_STACK_SIZE,NULL,2,&xTaskHandle_1);
-	xTaskCreate(vTask2,"Task 2",configMINIMAL_STACK_SIZE,NULL,2,&xTaskHandle_2);
+	xTaskCreate(vTask1,"Task 1",configMINIMAL_STACK_SIZE,NULL,3,&xTaskHandle_1);//
+	xTaskCreate(vTask2,"Task 2",configMINIMAL_STACK_SIZE,NULL,3,&xTaskHandle_2);//
 	vTaskStartScheduler();
 }
 
@@ -56,7 +56,11 @@ void vTask1(void *params)
 {
 	while(1)
 	{
-		printf("Hello world from TASK 1");
+		sprintf(msg,"hello from Task 1\n");
+		printmsg(msg);
+		//vTaskDelay(pdMS_TO_TICKS(1000));
+		taskYIELD();///
+
 	};
 }
 
@@ -64,7 +68,10 @@ void vTask2(void *params)
 {
 	while(1)
 	{
-		printf("Hello world from TASK 2");
+		sprintf(msg,"hello from Task 2\n");
+		printmsg(msg);
+		//vTaskDelay(pdMS_TO_TICKS(1000));
+		taskYIELD();///
 	};
 }
 static void prvSetupUSART(void)
